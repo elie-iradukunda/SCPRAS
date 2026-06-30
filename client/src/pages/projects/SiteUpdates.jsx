@@ -27,6 +27,7 @@ const emptyForm = {
   plannedStartDate: today,
   plannedEndDate: today,
   actualStartDate: today,
+  reportDate: today,
   plannedProgress: 0,
   actualProgress: 0,
   status: 'ongoing',
@@ -214,6 +215,9 @@ export default function SiteUpdates() {
           <label className="text-sm font-bold text-slate-700">Actual start date
             <input className="input-field mt-1" type="date" value={form.actualStartDate} onChange={(event) => updateForm('actualStartDate', event.target.value)} />
           </label>
+          <label className="text-sm font-bold text-slate-700">Daily report date
+            <input className="input-field mt-1" type="date" value={form.reportDate} onChange={(event) => updateForm('reportDate', event.target.value)} required />
+          </label>
           <label className="text-sm font-bold text-slate-700 md:col-span-2">Work completed / evidence
             <textarea className="input-field mt-1 min-h-24" value={form.description} onChange={(event) => updateForm('description', event.target.value)} />
           </label>
@@ -242,7 +246,7 @@ export default function SiteUpdates() {
             const variance = Number(activity.actualProgress || 0) - Number(activity.plannedProgress || 0);
             return <article key={activity.id} className="panel p-5">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0"><p className="text-xs font-extrabold uppercase tracking-wide text-blue-600">{activity.Project?.projectName || 'Project'} · {activity.activityCode || `ACT-${activity.id}`}</p><h3 className="mt-1 text-lg font-extrabold text-ink">{activity.activityName}</h3><p className="mt-1 text-sm font-semibold text-slate-500">{activity.phase || 'General works'} · {activity.responsiblePerson || 'Unassigned'}</p></div>
+                <div className="min-w-0"><p className="text-xs font-extrabold uppercase tracking-wide text-blue-600">{activity.Project?.projectName || 'Project'} · {activity.activityCode || `ACT-${activity.id}`}</p><h3 className="mt-1 text-lg font-extrabold text-ink">{activity.activityName}</h3><p className="mt-1 text-sm font-semibold text-slate-500">{activity.phase || 'General works'} · {activity.responsiblePerson || 'Unassigned'} · Reported {activity.reportDate || String(activity.createdAt || '').slice(0, 10)}</p></div>
                 <span className={`rounded-full px-3 py-1 text-xs font-extrabold capitalize ${statusStyles[activity.status] || statusStyles.not_started}`}>{activity.status?.replace('_', ' ')}</span>
               </div>
               <div className="mt-4 grid grid-cols-3 gap-3 text-center">

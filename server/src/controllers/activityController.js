@@ -11,6 +11,7 @@ const fields = [
   'plannedEndDate',
   'actualStartDate',
   'actualEndDate',
+  'reportDate',
   'plannedProgress',
   'actualProgress',
   'status',
@@ -37,7 +38,7 @@ export async function listActivities(req, res, next) {
     if (req.query.projectId) where.projectId = req.query.projectId;
     const activities = await WorkActivity.findAll({
       where,
-      order: [['plannedStartDate', 'ASC'], ['id', 'ASC']],
+      order: [['reportDate', 'DESC'], ['createdAt', 'DESC'], ['id', 'DESC']],
       include: [{ model: Project, attributes: ['projectName'] }],
     });
     res.json(activities);

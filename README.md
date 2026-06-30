@@ -6,7 +6,7 @@ Smart Construction Progress, Workforce & Resource Intelligence Platform.
 
 - Frontend: React, Vite, Tailwind CSS v3, React Router, Recharts, Lucide icons
 - Backend: Node.js, Express, Sequelize, MySQL
-- Decision support: deterministic variance analysis with clearly labelled AI-assisted recommendations
+- Decision support: deterministic variance calculations followed by optional Google Gemini structured recommendations
 
 ## Project Structure
 
@@ -51,6 +51,7 @@ On startup, the backend creates missing MySQL tables and seeds demo construction
 - Worker registration, QR smart cards and attendance check-in/check-out
 - Material baseline, receipt, issue, usage and stock-variance control
 - Explainable decision-support insights and workforce forecasts
+- Google Gemini recommendations and management-report narratives grounded in recorded progress, material and cost variances
 - Role-filtered JSON/CSV report exports
 - Administrator user, role, device and security management
 
@@ -64,3 +65,15 @@ npm run test:workflows --workspace server
 ```
 
 The automated checks cover 24 authorization assertions and 15 CRUD operations across seven core workflows.
+
+## Gemini Configuration
+
+Gemini is called only by the Express server; the API key must never be added to the React client. Create a key in Google AI Studio and set these server environment variables:
+
+```env
+GEMINI_API_KEY=your_server_side_key
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_TIMEOUT_MS=20000
+```
+
+SCPRAS calculates planned-versus-actual variances itself and sends only validated project facts to Gemini for structured English interpretation. If the key or provider is unavailable, the same endpoint returns transparent rule-based recommendations and labels the fallback clearly. Every generated action remains subject to authorized managerial review.

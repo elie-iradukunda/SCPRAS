@@ -80,6 +80,7 @@ const projectDocumentColumns = {
 
 const workActivityColumns = {
   constraints: { type: DataTypes.TEXT },
+  reportDate: { type: DataTypes.DATEONLY, defaultValue: DataTypes.NOW },
 };
 
 async function addMissingColumns(tableName, columns) {

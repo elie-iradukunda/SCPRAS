@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { Project, Worker, Attendance, Material, User } from '../models/index.js';
+import { buildPortfolioAiInsights } from '../services/aiRecommendationService.js';
 
 export async function listReports(req, res, next) {
   try {
@@ -252,39 +253,11 @@ export async function generateWorkforceReport(req, res, next) {
 
 export async function generateAiReport(req, res, next) {
   try {
-    const [projects, materials] = await Promise.all([
-      Project.findAll({ include: [{ model: Material, attributes: ['estimatedCost', 'actualCost', 'plannedQuantity', 'usedQuantity', 'materialName'] }] }),
-      Material.findAll({ include: [{ model: Project, attributes: ['projectName'] }] }),
-    ]);
-
-    const highVariance = materials.filter((m) => {
-      const planned = Number(m.plannedQuantity || 0);
-      const used = Number(m.usedQuantity || 0);
-      return planned > 0 && ((used - planned) / planned) > 0.1;
-    });
-    const delayed = projects.filter((p) => p.status === 'delayed' || p.status === 'at_risk');
-    const overBudget = projects.filter((p) => {
-      const actual = p.Materials.reduce((sum, m) => sum + Number(m.actualCost || 0), 0);
-      return actual > Number(p.budget);
-    });
-
-    const recommendations = [
-      ...highVariance.map((m) => `${m.materialName} usage is above plan in ${m.Project?.projectName || 'a project'}. Review procurement.`),
-      ...delayed.map((p) => `${p.projectName} is delayed. Schedule recovery action required.`),
-      ...overBudget.map((p) => `${p.projectName} is trending over budget. Review cost control.`),
-      'Conduct weekly BOQ baseline review to catch variances early.',
-    ].slice(0, 8);
+    const insights = await buildPortfolioAiInsights({ projectId: req.query.projectId });
 
     res.json({
       title: 'AI Insights Report',
-      generatedAt: new Date(),
-      completionProbability: delayed.length > 0 ? 78 : 91,
-      risks: {
-        materialVariance: highVariance.length,
-        delayedProjects: delayed.length,
-        overBudgetProjects: overBudget.length,
-      },
-      recommendations,
+      ...insights,
     });
   } catch (error) {
     next(error);

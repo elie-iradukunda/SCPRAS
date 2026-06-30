@@ -13,6 +13,7 @@ export const WorkActivity = sequelize.define('WorkActivity', {
   plannedEndDate: DataTypes.DATEONLY,
   actualStartDate: DataTypes.DATEONLY,
   actualEndDate: DataTypes.DATEONLY,
+  reportDate: { type: DataTypes.DATEONLY, defaultValue: DataTypes.NOW },
   plannedProgress: { type: DataTypes.FLOAT, defaultValue: 0 },
   actualProgress: { type: DataTypes.FLOAT, defaultValue: 0 },
   status: { type: DataTypes.ENUM('not_started', 'ongoing', 'delayed', 'completed', 'cancelled'), defaultValue: 'not_started' },

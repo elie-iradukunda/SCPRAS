@@ -60,19 +60,9 @@ export default function AiInsights() {
   const fetchInsights = async () => {
     setIsLoading(true);
     try {
-      const [insightsResponse, analysisResponse] = await Promise.all([
-        api.get('/ai/insights'),
-        api.post('/ai/analyze', {
-          plannedProgress: 75,
-          actualProgress: 68,
-          plannedBudget: 245000,
-          actualSpend: 255000,
-          materialVariancePercent: 12,
-          scheduleVarianceDays: 5,
-        }),
-      ]);
+      const insightsResponse = await api.get('/ai/insights');
       setInsights(insightsResponse.data);
-      setAnalysis(analysisResponse.data);
+      setAnalysis(insightsResponse.data.analysis || null);
       setLastUpdated(new Date());
     } catch {
       setInsights(fallbackData);
@@ -86,20 +76,10 @@ export default function AiInsights() {
     async function loadInsights() {
       setIsLoading(true);
       try {
-        const [insightsResponse, analysisResponse] = await Promise.all([
-          api.get('/ai/insights'),
-          api.post('/ai/analyze', {
-            plannedProgress: 75,
-            actualProgress: 68,
-            plannedBudget: 245000,
-            actualSpend: 255000,
-            materialVariancePercent: 12,
-            scheduleVarianceDays: 5,
-          }),
-        ]);
+        const insightsResponse = await api.get('/ai/insights');
         if (!ignore) {
           setInsights(insightsResponse.data);
-          setAnalysis(analysisResponse.data);
+          setAnalysis(insightsResponse.data.analysis || null);
           setLastUpdated(new Date());
         }
       } catch {
@@ -123,9 +103,13 @@ export default function AiInsights() {
     return lower.includes('risk') || lower.includes('critical') || lower.includes('danger');
   }).length, [recommendations]);
 
-  const predictedBudget = analysis ? 245000 - Number(analysis.budgetVariance || 0) : 255000;
+  const predictedBudget = analysis ? Number(analysis.actualSpend || 0) : 255000;
   const budgetVariance = analysis ? Number(analysis.budgetVariance || 0) : 10000;
   const isOverBudget = budgetVariance < 0;
+  const currency = analysis?.currency || 'USD';
+  const formatMoney = (value) => currency === 'mixed currencies'
+    ? `${Number(value || 0).toLocaleString()} (mixed currencies)`
+    : new Intl.NumberFormat('en', { style: 'currency', currency }).format(Number(value || 0));
 
   const completionPct = Math.round(insights.completionProbability || 0);
   const completionColor = completionPct >= 75 ? 'text-emerald-700' : completionPct >= 50 ? 'text-amber-700' : 'text-red-700';
@@ -135,8 +119,8 @@ export default function AiInsights() {
     <section className="page-shell">
       <PageHeader
         eyebrow="AI Analytics"
-        title="Smart Insights and Predictions"
-        description="Predict delays, analyze cost risk, monitor productivity and recommend workforce or material changes."
+        title="Gemini-Assisted Variance Recommendations"
+        description="Convert validated daily planned-versus-actual records into clear management recommendations and reports."
         action={
           <button
             className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-60"
@@ -154,10 +138,25 @@ export default function AiInsights() {
         <p className="text-xs text-slate-400">Last updated: {lastUpdated.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
       )}
 
+      {insights.ai && (
+        <div className={`rounded-lg border px-4 py-3 text-sm ${insights.ai.used ? 'border-blue-200 bg-blue-50 text-blue-800' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
+          <strong>{insights.ai.provider}</strong>{insights.ai.model ? ` · ${insights.ai.model}` : ''}: {insights.ai.notice}
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Completion Probability" value={`${completionPct}%`} icon={TrendingUp} tone="green" />
         <StatCard label="AI Predictions" value={recommendations.length} icon={Brain} tone="purple" />
         <StatCard label="Active Risk Alerts" value={riskCount} icon={AlertTriangle} tone="gold" />
+      </div>
+
+      <div className="panel-pad">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2"><Bot size={20} className="text-blue-700" /><h3 className="font-extrabold text-ink">Management Summary and Report</h3></div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">Human review required</span>
+        </div>
+        <p className="mt-4 text-sm font-semibold leading-6 text-slate-800">{insights.executiveSummary || 'No management summary is available.'}</p>
+        <p className="mt-3 border-t border-slate-100 pt-3 text-sm leading-6 text-slate-600">{insights.reportNarrative || 'No report narrative is available.'}</p>
       </div>
 
       {/* Risk breakdown */}
@@ -224,13 +223,13 @@ export default function AiInsights() {
               <h3 className="font-extrabold text-ink">Budget Prediction</h3>
             </div>
             <p className={`mt-4 text-4xl font-extrabold ${isOverBudget ? 'text-red-700' : 'text-emerald-700'}`}>
-              ${predictedBudget.toLocaleString()}
+              {formatMoney(predictedBudget)}
             </p>
             <div className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold ${isOverBudget ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
               {isOverBudget ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
               {isOverBudget
-                ? `$${Math.abs(budgetVariance).toLocaleString()} over baseline`
-                : `$${Math.abs(budgetVariance).toLocaleString()} under baseline`}
+                ? `${formatMoney(Math.abs(budgetVariance))} over baseline`
+                : `${formatMoney(Math.abs(budgetVariance))} under baseline`}
             </div>
             <div className={`mt-4 rounded-lg border p-4 text-sm leading-6 ${isOverBudget ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`}>
               {analysis?.recommendations?.[0] || 'AI analysis is connected to project progress, budget and material variance baselines.'}

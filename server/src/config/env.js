@@ -10,6 +10,11 @@ export const env = {
   demoMode: process.env.DEMO_MODE !== 'false',
   jwtSecret: process.env.JWT_SECRET || 'change_this_secret',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || '',
+    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    timeoutMs: Number(process.env.GEMINI_TIMEOUT_MS || 20000),
+  },
   db: {
     host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
     port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
