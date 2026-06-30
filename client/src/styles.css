@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: #eef2f6;
+    color: #07111f;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .page-shell {
+    @apply mx-auto flex w-full max-w-[1500px] flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8;
+  }
+
+  .panel {
+    @apply rounded-lg border border-slate-200 bg-white shadow-panel;
+  }
+
+  .panel-pad {
+    @apply panel p-4 sm:p-5;
+  }
+
+  .metric-card {
+    @apply rounded-lg border border-slate-200 bg-white p-4 shadow-sm;
+  }
+
+  .icon-button {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition hover:border-gold hover:text-ink;
+  }
+
+  .primary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-steel;
+  }
+
+  .muted-label {
+    @apply text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
+
+  .table-head {
+    @apply bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500;
+  }
+
+  .table-cell {
+    @apply border-t border-slate-100 px-4 py-3 text-sm text-slate-700;
+  }
+}

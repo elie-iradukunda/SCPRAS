@@ -1,0 +1,34 @@
+{
+  "name": "buildintel-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "test:rbac": "node scripts/verify-rbac.mjs",
+    "test:workflows": "node scripts/verify-workflows.mjs",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:seed": "sequelize-cli db:seed:all"
+  },
+  "dependencies": {
+    "bcryptjs": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "express-validator": "latest",
+    "helmet": "latest",
+    "jsonwebtoken": "latest",
+    "morgan": "latest",
+    "multer": "latest",
+    "mysql2": "latest",
+    "qrcode": "latest",
+    "sequelize": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "latest",
+    "sequelize-cli": "latest"
+  }
+}

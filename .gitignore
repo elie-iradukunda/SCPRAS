@@ -1,0 +1,16 @@
+node_modules
+dist
+.env
+.env.*
+!.env.example
+npm-debug.log*
+*.log
+uploads
+coverage
+.DS_Store
+
+# Dissertation sources, generated figures, screenshots, and exports
+Book/
+
+# Local editor/tooling workspace
+.sixth/
