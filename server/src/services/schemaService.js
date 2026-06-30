@@ -120,6 +120,18 @@ async function backfillMaterialColumns() {
   }
 }
 
+async function backfillWorkActivityReportDates() {
+  try {
+    await sequelize.query(`
+      UPDATE WorkActivities
+      SET reportDate = COALESCE(actualStartDate, DATE(createdAt), plannedStartDate, CURRENT_DATE)
+      WHERE reportDate IS NULL
+    `);
+  } catch {
+    // Best effort for databases created before daily progress dates were introduced.
+  }
+}
+
 async function widenUserRoleEnum() {
   try {
     await sequelize.query(`
@@ -163,4 +175,5 @@ export async function ensureSchema() {
   await addMissingColumns('ProjectDocuments', projectDocumentColumns);
   await addMissingColumns('WorkActivities', workActivityColumns);
   await backfillMaterialColumns();
+  await backfillWorkActivityReportDates();
 }
