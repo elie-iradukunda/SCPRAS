@@ -22,6 +22,11 @@ async function startServer() {
     console.warn('MySQL connection failed. Check server/.env before using database routes.');
     if (env.demoMode) {
       console.warn('Demo mode is enabled, so API routes will use in-memory construction data as a fallback.');
+    } else {
+      console.error('Production startup stopped because the database is unavailable.');
+      console.error(error.message);
+      process.exitCode = 1;
+      return;
     }
     console.warn(error.message);
   }
